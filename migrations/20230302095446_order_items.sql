@@ -1,9 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE order_items(
-    id          int,
-    order_id    int,
-    item_id     int
+    id          serial      constraint order_items_pk PRIMARY KEY,
+    order_id    int         references orders(id),
+    item_id     int         references items(id)
 );
 -- +goose StatementEnd
 

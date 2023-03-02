@@ -1,6 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE items(
+    id              serial             constraint items_pk PRIMARY KEY,
     chrt_id         int,
     track_number    varchar(50),
     price           real,

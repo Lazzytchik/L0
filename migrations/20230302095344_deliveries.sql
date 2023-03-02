@@ -1,6 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE deliveries(
+    id          serial             constraint deliveries_pk PRIMARY KEY,
     name        varchar(50),
     phone       varchar(14),
     zip         varchar(50),
