@@ -13,5 +13,5 @@ CREATE TABLE deliveries(
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE deliveries
+DROP TABLE deliveries;
 -- +goose StatementEnd
