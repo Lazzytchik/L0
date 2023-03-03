@@ -14,5 +14,5 @@ services:
     image: nats:2.9.14
     container_name: l0_nats
     ports:
-      - "8222:8222"
+      - "4222:4222"
     command: "-js"
