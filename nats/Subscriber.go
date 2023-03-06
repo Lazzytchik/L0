@@ -1,5 +1,10 @@
-package main
+package nats
 
-func main() {
+import (
+	"github.com/nats-io/nats.go"
+)
 
+type BaseSubscriber struct {
+	JS      nats.JetStreamContext
+	Channel string
 }
