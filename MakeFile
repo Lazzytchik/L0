@@ -1,4 +1,4 @@
-.PHONY: "migrate"
+.PHONY: "migrate-up"
 migrate-up:
 	goose -dir="./migrations" postgres "host=localhost user=postgres password=postgres dbname=l0 sslmode=disable" up
 
