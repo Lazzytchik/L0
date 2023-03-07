@@ -30,6 +30,10 @@ func main() {
 
 	order := generators.Order{}.Generate(8)
 
-	pg.InsertOrder(order)
+	id, _ := pg.InsertOrder(order)
+
+	newOrder, _ := pg.GetOrderById(id)
+
+	pg.Logger.Println(newOrder)
 
 }
