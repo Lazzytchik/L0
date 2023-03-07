@@ -7,7 +7,7 @@ CREATE TABLE orders(
     entry               varchar(10),
     delivery_id         int             references deliveries(id),
     payment_id          int,
-    locale              varchar(5),
+    locale              varchar(50),
     internal_signature  varchar(50),
     customer_id         varchar(50),
     delivery_service    varchar(50),

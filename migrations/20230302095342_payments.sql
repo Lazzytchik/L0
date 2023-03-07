@@ -4,7 +4,7 @@ CREATE TABLE payments(
     id              serial             constraint payments_pk PRIMARY KEY,
     transaction     varchar(50),
     request_id      varchar(50),
-    currency        varchar(5),
+    currency        varchar(50),
     provider        varchar(50),
     amount          real,
     payment_dt      bigint,

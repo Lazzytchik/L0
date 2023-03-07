@@ -3,7 +3,7 @@
 CREATE TABLE deliveries(
     id          serial             constraint deliveries_pk PRIMARY KEY,
     name        varchar(50),
-    phone       varchar(14),
+    phone       varchar(50),
     zip         varchar(50),
     city        varchar(50),
     address     varchar(50),

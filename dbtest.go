@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
+	db "lazzytchik/L0/db/pg"
+	"lazzytchik/L0/env"
+	"lazzytchik/L0/generators"
 	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -16,42 +16,20 @@ func main() {
 		log.Fatalf("Problem: %s", envErr)
 	}
 
-	config := ExtractFromEnv()
+	logger := log.Logger{}
+	logger.SetPrefix("[ DB ]: ")
+	logger.SetOutput(os.Stdout)
 
-	conn, err := pgx.Connect(context.Background(), config.GetConnString())
+	pg, err := db.New(env.ExtractDbConfig(), &logger)
 
 	if err != nil {
 		log.Fatal("Problem:", err.Error())
 	}
 
-	defer conn.Close(context.Background())
-}
+	defer pg.Conn.Close(context.Background())
 
-type DataBaseConfig struct {
-	Username string
-	Password string
-	Host     string
-	Port     string
-	DbName   string
-}
+	order := generators.Order{}.Generate(8)
 
-func (dbc *DataBaseConfig) GetConnString() string {
-	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s",
-		dbc.Username,
-		dbc.Password,
-		dbc.Host,
-		dbc.Port,
-		dbc.DbName,
-	)
-}
+	pg.InsertOrder(order)
 
-func ExtractFromEnv() DataBaseConfig {
-	return DataBaseConfig{
-		Username: os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     os.Getenv("POSTGRES_PORT"),
-		DbName:   os.Getenv("POSTGRES_DB"),
-	}
 }

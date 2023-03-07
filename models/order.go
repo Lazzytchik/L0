@@ -13,6 +13,14 @@ type Order struct {
 	DeliveryService   string `json:"delivery_service"`
 	ShardKey          string `json:"shardkey"`
 	SMID              int    `json:"sm_id"`
-	DateCreated       string `json:"date_created"`
+	DateCreated       int64  `json:"date_created"`
 	OofShard          string `json:"oof_shard"`
+}
+
+func (d Order) TableName() string {
+	return "orders"
+}
+
+func (d Order) PrimaryColumn() string {
+	return "id"
 }
