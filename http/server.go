@@ -96,6 +96,8 @@ func (s *OrderServer) Serve(ctx context.Context) error {
 
 	s.HttpServer = &srv
 
+	s.Logger.Printf("Server started on http://localhost%s.", address)
+
 	return srv.ListenAndServe()
 }
 

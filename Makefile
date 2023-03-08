@@ -6,9 +6,11 @@ migrate-up:
 migrate-reset:
 	goose -dir="./migrations" postgres "host=localhost user=postgres password=postgres dbname=l0 sslmode=disable" reset
 
-migrate-param: export-env
-	goose -dir="./migrations" postgres "host=${POSTGRES_HOST} user=$POSTGRES_USER password=$POSTGRES_PASSWORD dbname=$POSTGRES_DB sslmode=disable" up
+build:
+	docker-compose up
 
-export-env:
-	export "$POSTGRES_HOST"="d"
-	echo "${POSTGRES_HOST}"
+prod:
+	go run prod.go
+
+start:
+	go run main.go
