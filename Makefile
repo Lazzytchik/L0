@@ -14,3 +14,6 @@ prod:
 
 start:
 	go run main.go
+
+build-env:
+	cp .env-example .env
