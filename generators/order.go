@@ -11,7 +11,7 @@ type Order struct {
 }
 
 func (order Order) Generate(seed int) models.Order {
-	itemCount := rand.Int() % 3
+	itemCount := rand.Int()%3 + 1
 
 	items := make([]models.Item, itemCount)
 	for i := 0; i < itemCount; i++ {
