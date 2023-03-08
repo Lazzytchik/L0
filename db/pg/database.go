@@ -130,17 +130,80 @@ func (pg *Postgres) InsertOrder(order models.Order) (int, error) {
 
 }
 
-//func (pg *Postgres) GetOrders() map[int]models.Order {
-//
-//	sql := "SELECT * FROM orders LIMIT 10000"
-//	rows, err := pg.Conn.Query(context.Background(), sql)
-//
-//	if err != nil {
-//		pg.Logger.Println("Insert problem: ", err)
-//	}
-//
-//	pg.Logger.Println("Successful Insert")
-//}
+func (pg *Postgres) GetOrders() (map[int]models.Order, error) {
+
+	orders := make(map[int]models.Order)
+	deliveries, delErr := pg.GetDeliveries()
+	if delErr != nil {
+		pg.Logger.Println("Deliveries querying problem:", delErr)
+		return orders, delErr
+	}
+
+	payments, payErr := pg.GetPayments()
+	if payErr != nil {
+		pg.Logger.Println("Payments querying problem:", payErr)
+		return orders, payErr
+	}
+
+	items, orderItems, itemErr := pg.GetItemsWithOrders()
+	if itemErr != nil {
+		pg.Logger.Println("Item querying problem:", itemErr)
+		return orders, itemErr
+	}
+
+	//	ORDERS
+	sql := fmt.Sprintf("SELECT id, order_uid, track_number, entry, delivery_id, payment_id, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, extract(epoch from date_created)::bigint, oof_shard FROM orders LIMIT 10000")
+	rows, err := pg.Conn.Query(context.Background(), sql)
+
+	if err != nil {
+		pg.Logger.Println("Orders querying problem problem: ", err)
+		return orders, err
+	}
+
+	defer rows.Close()
+
+	id := 0
+	for rows.Next() {
+		var order models.Order
+		delId := 0
+		payId := 0
+
+		idErr := rows.Scan(
+			&id,
+			&order.OrderUid,
+			&order.TrackNumber,
+			&order.Entry,
+			&delId,
+			&payId,
+			&order.Locale,
+			&order.InternalSignature,
+			&order.CustomerID,
+			&order.DeliveryService,
+			&order.ShardKey,
+			&order.SMID,
+			&order.DateCreated,
+			&order.OofShard,
+		)
+		if idErr != nil {
+			pg.Logger.Println("Orders scanning problem:", idErr)
+			return orders, idErr
+		}
+
+		order.Delivery = deliveries[delId]
+		order.Payment = payments[payId]
+
+		if v, exists := orderItems[id]; exists {
+			for _, itemId := range v {
+				order.Items = append(order.Items, items[itemId])
+			}
+		}
+
+		orders[id] = order
+	}
+
+	pg.Logger.Println("Successful select")
+	return orders, err
+}
 
 func (pg *Postgres) GetOrderById(id int) (models.Order, error) {
 	var order models.Order
@@ -232,4 +295,138 @@ func (pg *Postgres) GetOrderById(id int) (models.Order, error) {
 	}
 
 	return order, err
+}
+
+func (pg *Postgres) GetDeliveries() (map[int]models.Delivery, error) {
+	deliveries := make(map[int]models.Delivery)
+
+	sql := fmt.Sprintf("SELECT d.* FROM orders LEFT JOIN deliveries d on d.id = orders.delivery_id LIMIT 10000")
+	delRows, err := pg.Conn.Query(context.Background(), sql)
+
+	if err != nil {
+		return deliveries, err
+	}
+
+	for delRows.Next() {
+		delId := 0
+		var delivery models.Delivery
+		idErr := delRows.Scan(
+			&delId,
+			&delivery.Name,
+			&delivery.Phone,
+			&delivery.Zip,
+			&delivery.City,
+			&delivery.Address,
+			&delivery.Region,
+			&delivery.Email,
+		)
+		if idErr != nil {
+			return deliveries, idErr
+		}
+
+		deliveries[delId] = delivery
+	}
+
+	delRows.Close()
+
+	return deliveries, err
+}
+
+func (pg *Postgres) GetPayments() (map[int]models.Payment, error) {
+
+	payments := make(map[int]models.Payment)
+
+	sql := fmt.Sprintf("SELECT d.* FROM orders LEFT JOIN payments d on d.id = orders.payment_id LIMIT 10000")
+	payRows, err := pg.Conn.Query(context.Background(), sql)
+
+	if err != nil {
+		return payments, err
+	}
+
+	for payRows.Next() {
+		payId := 0
+		var payment models.Payment
+		err = payRows.Scan(
+			&payId,
+			&payment.Transaction,
+			&payment.RequestID,
+			&payment.Currency,
+			&payment.Provider,
+			&payment.Amount,
+			&payment.PaymentDT,
+			&payment.Bank,
+			&payment.DeliveryCost,
+			&payment.GoodsTotal,
+			&payment.CustomFee,
+		)
+		if err != nil {
+			pg.Logger.Println("Orders scanning problem:", err)
+			return payments, err
+		}
+
+		payments[payId] = payment
+	}
+
+	payRows.Close()
+
+	return payments, err
+}
+
+func (pg *Postgres) GetItemsWithOrders() (map[int]models.Item, map[int][]int, error) {
+	// ITEMS
+	items := make(map[int]models.Item)
+	orderItems := make(map[int][]int)
+
+	sql := fmt.Sprintf("SELECT oi.order_id, i.* FROM (SELECT * FROM orders LIMIT 10000) as orders_limit LEFT JOIN order_items oi on oi.order_id = orders_limit.id JOIN items i on i.id = oi.item_id LIMIT 10000")
+	rows, err := pg.Conn.Query(context.Background(), sql)
+
+	if err != nil {
+		pg.Logger.Println("Orders querying problem problem: ", err)
+		return items, orderItems, err
+	}
+
+	for rows.Next() {
+		itemId := 0
+		orderId := 0
+		var item models.Item
+		itemErr := rows.Scan(
+			&orderId,
+			&itemId,
+			&item.ChrtId,
+			&item.TrackNumber,
+			&item.Price,
+			&item.RID,
+			&item.Name,
+			&item.Sale,
+			&item.Size,
+			&item.TotalPrice,
+			&item.NMID,
+			&item.Brand,
+			&item.Status,
+		)
+		if itemErr != nil {
+			pg.Logger.Println("Orders scanning problem:", itemErr)
+			return items, orderItems, itemErr
+		}
+		if v, exists := orderItems[orderId]; exists {
+			orderItems[orderId] = append(v, itemId)
+		} else {
+			orderItems[orderId] = []int{itemId}
+		}
+
+		items[itemId] = item
+	}
+
+	rows.Close()
+
+	return items, orderItems, err
+}
+
+func (pg *Postgres) GetMaxOrderId() (int, error) {
+	var id int
+
+	sql := "SELECT MAX(id) FROM orders"
+	err := pg.Conn.QueryRow(context.Background(), sql).Scan(&id)
+
+	return id, err
 }

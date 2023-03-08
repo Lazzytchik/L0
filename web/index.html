@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>ORDER APP</title>
+</head>
+<body>
+    <div id="control">
+        <input id="id" placeholder="Input order id..." type="number">
+        <button onclick="getOrder()">Fetch</button>
+    </div>
+    <div id="response">
+        <textarea name="damn" id="json" cols="50" rows="10"></textarea>
+    </div>
+
+    <script type="text/javascript">
+        async function getOrder() {
+            let orderId = document.getElementById('id').value;
+            const response = await fetch(`http://localhost:3000/orders?id=${orderId}`);
+            const result = await response.json()
+
+            document.getElementById('json').textContent = JSON.stringify(result, undefined, 2)
+        }
+    </script>
+</body>
+</html>

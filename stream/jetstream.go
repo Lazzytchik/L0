@@ -1,4 +1,4 @@
-package nats
+package stream
 
 import (
 	"github.com/nats-io/nats.go"
@@ -21,4 +21,16 @@ func (js *JetsStream) Connect() {
 	if jetError != nil {
 		jetError.Error()
 	}
+}
+
+func (js *JetsStream) AddStream(name string) {
+	js.Core.AddStream(&nats.StreamConfig{
+		Name:     name,
+		Subjects: []string{"order"},
+	})
+}
+
+func (js *JetsStream) SubscribeAsync(handler func(msg *nats.Msg)) (*nats.Subscription, error) {
+	return js.Core.Subscribe("order", handler, nats.DeliverNew())
+
 }

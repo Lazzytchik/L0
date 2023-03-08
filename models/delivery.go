@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Delivery struct {
 	Name    string `json:"name"`
@@ -41,4 +44,32 @@ func (d Delivery) TableName() string {
 
 func (d Delivery) PrimaryColumn() string {
 	return "id"
+}
+
+func (d Delivery) Validate(err []error) bool {
+	switch {
+	case d.Name == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Name given: %s", d.Name)))
+		return false
+	case d.Phone == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Phone given: %s", d.Phone)))
+		return false
+	case d.Zip == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Zip given: %s", d.Zip)))
+		return false
+	case d.City == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid City given: %s", d.City)))
+		return false
+	case d.Address == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Address signature given: %s", d.Address)))
+		return false
+	case d.Region == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Region given: %s", d.Region)))
+		return false
+	case d.Email == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Email given: %s", d.Email)))
+		return false
+	}
+
+	return true
 }

@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Payment struct {
 	Transaction  string  `json:"transaction"`
@@ -39,6 +42,43 @@ func (d Payment) Delete(id int) string {
 		d.PrimaryColumn(),
 		id,
 	)
+}
+
+func (d Payment) Validate(err []error) bool {
+	switch {
+	case d.Transaction == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Transaction given: %s", d.Transaction)))
+		return false
+	case d.RequestID == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid RequestID given: %s", d.RequestID)))
+		return false
+	case d.Currency == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Currency given: %s", d.Currency)))
+		return false
+	case d.Provider == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Provider given: %s", d.Provider)))
+		return false
+	case d.Amount == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid Amount given: %f", d.Amount)))
+		return false
+	case d.PaymentDT == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid PaymentDT given: %d", d.PaymentDT)))
+		return false
+	case d.Bank == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Bank given: %s", d.Bank)))
+		return false
+	case d.DeliveryCost == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid DeliveryCost given: %f", d.DeliveryCost)))
+		return false
+	case d.GoodsTotal == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid GoodsTotal given: %d", d.GoodsTotal)))
+		return false
+	case d.CustomFee == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid CustomFee given: %f", d.CustomFee)))
+		return false
+	}
+
+	return true
 }
 
 func (d Payment) TableName() string {

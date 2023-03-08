@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Item struct {
 	ChrtId      int     `json:"chrt_id"`
@@ -32,6 +35,46 @@ func (d Item) Insert() string {
 		d.Brand,
 		d.Status,
 	)
+}
+
+func (d Item) Validate(err []error) bool {
+	switch {
+	case d.ChrtId == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid ChrtID given: %d", d.ChrtId)))
+		return false
+	case d.TrackNumber == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid TrackNumber given: %s", d.TrackNumber)))
+		return false
+	case d.Price == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid Price given: %f", d.Price)))
+		return false
+	case d.RID == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid RID given: %s", d.RID)))
+		return false
+	case d.Name == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Name signature given: %s", d.Name)))
+		return false
+	case d.Sale == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid Sale given: %f", d.Sale)))
+		return false
+	case d.Size == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Size given: %s", d.Size)))
+		return false
+	case d.TotalPrice == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid TotalPrice given: %f", d.TotalPrice)))
+		return false
+	case d.NMID == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid NMID given: %d", d.NMID)))
+		return false
+	case d.Brand == "":
+		err = append(err, errors.New(fmt.Sprintf("Invalid Brand given: %s", d.Brand)))
+		return false
+	case d.Status == 0:
+		err = append(err, errors.New(fmt.Sprintf("Invalid Status given: %d", d.Status)))
+		return false
+	}
+
+	return true
 }
 
 func (d Item) Delete(id int) string {
