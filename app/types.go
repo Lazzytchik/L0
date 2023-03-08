@@ -59,7 +59,7 @@ func (app *App) ReceiveSubscriber() {
 
 		json.Unmarshal(msg.Data, &order)
 
-		var err []error
+		err := make([]error, 0, 20)
 		if order.Validate(err) {
 			id, _ := app.DataBase.InsertOrder(order)
 			app.Server.Storage.Add(id, order)

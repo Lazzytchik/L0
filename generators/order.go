@@ -17,15 +17,15 @@ func (order Order) Generate(seed int) models.Order {
 	for i := 0; i < itemCount; i++ {
 		items[i] = models.Item{
 			ChrtId:      seed,
-			TrackNumber: fmt.Sprintf("%d_track", i),
+			TrackNumber: fmt.Sprintf("%d_track", i+1),
 			Price:       float32(seed),
-			RID:         fmt.Sprintf("%d_rid", i),
-			Name:        fmt.Sprintf("%d_name", i),
+			RID:         fmt.Sprintf("%d_rid", i+1),
+			Name:        fmt.Sprintf("%d_name", i+1),
 			Sale:        float32(seed),
-			Size:        fmt.Sprintf("%d_size", i),
+			Size:        fmt.Sprintf("%d_size", i+1),
 			TotalPrice:  float32(seed),
 			NMID:        seed,
-			Brand:       fmt.Sprintf("%d_brand", i),
+			Brand:       fmt.Sprintf("%d_brand", i+1),
 			Status:      seed,
 		}
 	}

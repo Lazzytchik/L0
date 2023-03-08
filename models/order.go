@@ -41,9 +41,9 @@ func (d Order) Validate(err []error) bool {
 	case d.Entry == "":
 		err = append(err, errors.New(fmt.Sprintf("Invalid Entry given: %s", d.Entry)))
 		return false
-	case d.Delivery.Validate(err):
+	case !d.Delivery.Validate(err):
 		return false
-	case d.Payment.Validate(err):
+	case !d.Payment.Validate(err):
 		return false
 	case d.Locale == "":
 		err = append(err, errors.New(fmt.Sprintf("Invalid Locale given: %s", d.Locale)))
